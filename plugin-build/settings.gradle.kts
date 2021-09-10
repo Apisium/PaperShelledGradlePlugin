@@ -2,10 +2,9 @@ pluginManagement {
     repositories {
         gradlePluginPortal()
         mavenCentral()
-        jcenter()
     }
 }
 
-rootProject.name = ("com.ncorti.kotlin.gradle.template")
+rootProject.name = ("com.apisium.papershelled")
 
 include(":plugin")

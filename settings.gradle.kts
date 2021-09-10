@@ -2,11 +2,10 @@ pluginManagement {
     repositories {
         gradlePluginPortal()
         mavenCentral()
-        jcenter()
     }
 }
 
-rootProject.name = ("kotlin-gradle-plugin-template")
+rootProject.name = ("papershelled")
 
 include(":example")
 includeBuild("plugin-build")

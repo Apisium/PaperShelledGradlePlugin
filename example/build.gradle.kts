@@ -1,8 +1,8 @@
 plugins {
     java
-    id("com.ncorti.kotlin.gradle.template.plugin")
+    id("cn.apisium.papershelled")
 }
 
-templateExampleConfig {
-    message.set("Just trying this gradle plugin...")
+papershelled {
+    jarUrl.set("https://papermc.io/api/v2/projects/paper/versions/1.17.1/builds/257/downloads/paper-1.17.1-257.jar")
 }

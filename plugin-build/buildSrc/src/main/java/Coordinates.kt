@@ -1,20 +1,21 @@
 object PluginCoordinates {
-    const val ID = "com.ncorti.kotlin.gradle.template.plugin"
-    const val GROUP = "com.ncorti.kotlin.gradle.template"
+    const val ID = "cn.apisium.papershelled"
+    const val GROUP = "cn.apisium.papershelled"
     const val VERSION = "1.0.0"
-    const val IMPLEMENTATION_CLASS = "com.ncorti.kotlin.gradle.template.plugin.TemplatePlugin"
+    const val IMPLEMENTATION_CLASS = "cn.apisium.papershelled.gradle.Plugin"
 }
 
 object PluginBundle {
-    const val VCS = "https://github.com/cortinico/kotlin-gradle-plugin-template"
-    const val WEBSITE = "https://github.com/cortinico/kotlin-gradle-plugin-template"
-    const val DESCRIPTION = "An empty Gradle plugin created from a template"
-    const val DISPLAY_NAME = "An empty Gradle Plugin from a template"
+    const val VCS = "https://github.com/Apisium/PaperShelledGradlePlugin"
+    const val WEBSITE = "https://github.com/Apisium/PaperShelledGradlePlugin#readme"
+    const val DESCRIPTION = "A Paper plugin mixin development framework"
+    const val DISPLAY_NAME = "PaperShelled"
     val TAGS = listOf(
         "plugin",
         "gradle",
-        "sample",
-        "template"
+        "minecraft",
+        "bukkit",
+        "paper",
+        "mixin"
     )
 }
-
