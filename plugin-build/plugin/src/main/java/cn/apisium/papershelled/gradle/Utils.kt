@@ -24,12 +24,15 @@ import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.utils.DateUtils
 import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.http.impl.client.HttpClientBuilder
+import org.gradle.api.file.RegularFile
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import java.net.URI
 
 val ProjectLayout.cache: Path
     get() = projectDirectory.file(".gradle/caches/papershelled").asFile.toPath()
+fun ProjectLayout.getCache(file: String): RegularFile = projectDirectory.file(".gradle/caches/papershelled/$file")
+fun ProjectLayout.getCaches(file: String) = projectDirectory.files(".gradle/caches/papershelled/$file")
 
 abstract class DownloadService : BuildService<BuildServiceParameters.None>, AutoCloseable {
     private val httpClient: CloseableHttpClient = HttpClientBuilder.create().let { builder ->
