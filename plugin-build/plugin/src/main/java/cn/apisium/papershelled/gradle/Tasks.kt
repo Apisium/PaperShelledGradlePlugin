@@ -122,8 +122,69 @@ abstract class GenerateMappedJarTask : DefaultTask() {
         } finally {
             remapper.finish()
         }
-        val out = project.layout.cache.resolve("out.jar")
-        JarRelocator(temp.toFile(), out.toFile(), listOf(
+        JarRelocator(temp.toFile(), project.layout.cache.resolve("out.jar").toFile(), listOf(
             Relocation("org.bukkit.craftbukkit.$obcVersion", "org.bukkit.craftbukkit"))).run()
+    }
+}
+
+abstract class ReobfTask : DefaultTask() {
+    init {
+        description = "Generate mapped jar file"
+        group = GROUP
+    }
+
+    @get:Input
+    @get:Option(option = "relocateCraftBukkit", description = "Should relocate craftbukkit packets")
+    @get:Optional
+    abstract val relocateCraftBukkit: Property<Boolean>
+
+    @get:Input
+    @get:Option(option = "reobfFile", description = "The file path of reobf map")
+    @get:Optional
+    abstract val reobfFile: RegularFileProperty
+
+    @get:Input
+    @get:Option(option = "spigotMap", description = "The map name of Spigot")
+    @get:Optional
+    abstract val spigotMap: Property<String>
+
+    @get:Input
+    @get:Option(option = "mojangMap", description = "The map name of Mojang")
+    @get:Optional
+    abstract val mojangMap: Property<String>
+
+    @ExperimentalPathApi
+    @TaskAction
+    fun run() {
+        val remapper = TinyRemapper.newRemapper()
+            .withMappings(TinyUtils.createTinyMappingProvider(reobfFile.asFile.get().toPath(),
+                mojangMap.get(), spigotMap.get()))
+            .ignoreConflicts(true)
+            .fixPackageAccess(true)
+            .rebuildSourceFilenames(true)
+            .renameInvalidLocals(true)
+            .threads(-1)
+            .build()
+
+        val needRelocate = relocateCraftBukkit.get()
+        val path = lastJarTask!!.archiveFile.get().asFile.toPath()
+        val noSuffix = path.fileName.toString().removeSuffix(".jar")
+        val out = path.parent.resolve("$noSuffix-reobf.jar")
+        val temp = if (needRelocate) path.parent.resolve("$noSuffix.tmp.jar") else out
+        try {
+            OutputConsumerPath.Builder(temp).build().use {
+                it.addNonClassFiles(path, NonClassCopyMode.FIX_META_INF, remapper)
+                remapper.readInputs(path)
+                remapper.readClassPath(project.layout.cache.resolve("out.jar"))
+                remapper.apply(it)
+            }
+        } finally {
+            remapper.finish()
+        }
+        if (needRelocate) {
+            JarRelocator(temp.toFile(), out.toFile(), listOf(Relocation("org.bukkit.craftbukkit",
+                "org.bukkit.craftbukkit." + craftBukkitVersion()))).run()
+            Files.delete(temp)
+        }
     }
 }

@@ -1,0 +1,4 @@
+name: ExamplePlugin
+author: Shirasawa
+version: 0.0.0
+main: cn.apisium.example.Main
