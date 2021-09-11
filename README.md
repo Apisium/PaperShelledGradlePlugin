@@ -7,25 +7,31 @@ A Paper plugin mixin development framework.
 Simple usage:
 
 ```groovy
-import cn.apisium.papershelled.gradle.paperShelledJar
-
-plugins {
-    id "cn.apisium.papershelled"
-}
-
 buildscript {
     repositories {
-        maven("https://maven.fabricmc.net/")
+        maven { url "https://maven.fabricmc.net/" }
     }
 }
 
-dependencies {
-    compileOnly(paperShelledJar())
+plugins {
+    id 'java'
+    id 'cn.apisium.papershelled' version '1.0.1'
 }
 
 paperShelled {
-    jarUrl.set("https://papermc.io/api/v2/projects/paper/versions/1.17.1/builds/257/downloads/paper-1.17.1-257.jar")
+    jarUrl = "https://papermc.io/api/v2/projects/paper/versions/1.17.1/builds/257/downloads/paper-1.17.1-257.jar"
 }
+
+dependencies {
+    compileOnly paperShelled.jar()
+}
+
+```
+
+Then run `setupPaperShelled` task:
+
+```bash
+gradle setupPaperShelled
 ```
 
 ### Complete example
@@ -33,36 +39,33 @@ paperShelled {
 [See also](./example)
 
 ```groovy
-import cn.apisium.papershelled.gradle.paperShelledJar
-import cn.apisium.papershelled.gradle.craftBukkitVersion
-
-plugins {
-    id "cn.apisium.papershelled"
-    id 'com.github.johnrengelman.shadow' version '7.0.0'
-}
-
 buildscript {
     repositories {
         maven("https://maven.fabricmc.net/")
     }
 }
 
+plugins {
+    id 'cn.apisium.papershelled' version '1.0.1'
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
+}
+
 dependencies {
-    compileOnly(paperShelledJar())
+    compileOnly paperShelled.jar()
 }
 
 paperShelled {
-    jarUrl = "https://papermc.io/api/v2/projects/paper/versions/1.17.1/builds/257/downloads/paper-1.17.1-257.jar"
-    jarFile = "some/path/server.jar"
-    reobfFile = "some/path/reobf.tiny"
-    spigotMap = "spigot"
-    mojangMap = "mojang+yarn"
+    jarUrl = 'https://papermc.io/api/v2/projects/paper/versions/1.17.1/builds/257/downloads/paper-1.17.1-257.jar'
+    jarFile = 'some/path/server.jar'
+    reobfFile = 'some/path/reobf.tiny'
+    spigotMap = 'spigot'
+    mojangMap = 'mojang+yarn'
     relocateCraftBukkit = false
 }
 
 shadowJar {
     dependencies {
-        relocate('org.bukkit.craftbukkit', 'org.bukkit.craftbukkit.' + craftBukkitVersion())
+        relocate('org.bukkit.craftbukkit', 'org.bukkit.craftbukkit.' + paperShelled.craftBukkitVersion.get())
     }
     archiveClassifier.set('')
     minimize()

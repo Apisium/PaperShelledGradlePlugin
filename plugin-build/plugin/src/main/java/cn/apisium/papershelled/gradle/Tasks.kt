@@ -76,6 +76,11 @@ abstract class GenerateMappedJarTask : DefaultTask() {
     abstract val reobfFile: RegularFileProperty
 
     @get:Input
+    @get:Option(option = "paperShelledJar", description = "The file path of out jar")
+    @get:Optional
+    abstract val paperShelledJar: RegularFileProperty
+
+    @get:Input
     @get:Option(option = "spigotMap", description = "The map name of Spigot")
     @get:Optional
     abstract val spigotMap: Property<String>
@@ -122,7 +127,7 @@ abstract class GenerateMappedJarTask : DefaultTask() {
         } finally {
             remapper.finish()
         }
-        JarRelocator(temp.toFile(), project.layout.cache.resolve("out.jar").toFile(), listOf(
+        JarRelocator(temp.toFile(), paperShelledJar.get().asFile, listOf(
             Relocation("org.bukkit.craftbukkit.$obcVersion", "org.bukkit.craftbukkit"))).run()
     }
 }
@@ -153,6 +158,16 @@ abstract class ReobfTask : DefaultTask() {
     @get:Optional
     abstract val mojangMap: Property<String>
 
+    @get:Input
+    @get:Option(option = "craftBukkitVersion", description = "The version of craft bukkit")
+    @get:Optional
+    abstract val craftBukkitVersion: Property<String>
+
+    @get:Input
+    @get:Option(option = "paperShelledJar", description = "The file path of out jar")
+    @get:Optional
+    abstract val paperShelledJar: RegularFileProperty
+
     @ExperimentalPathApi
     @TaskAction
     fun run() {
@@ -175,7 +190,7 @@ abstract class ReobfTask : DefaultTask() {
             OutputConsumerPath.Builder(temp).build().use {
                 it.addNonClassFiles(path, NonClassCopyMode.FIX_META_INF, remapper)
                 remapper.readInputs(path)
-                remapper.readClassPath(project.layout.cache.resolve("out.jar"))
+                remapper.readClassPath(paperShelledJar.get().asFile.toPath())
                 remapper.apply(it)
             }
         } finally {
@@ -183,7 +198,7 @@ abstract class ReobfTask : DefaultTask() {
         }
         if (needRelocate) {
             JarRelocator(temp.toFile(), out.toFile(), listOf(Relocation("org.bukkit.craftbukkit",
-                "org.bukkit.craftbukkit." + craftBukkitVersion()))).run()
+                "org.bukkit.craftbukkit." + craftBukkitVersion.get()))).run()
             Files.delete(temp)
         }
     }
