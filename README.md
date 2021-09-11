@@ -15,7 +15,7 @@ buildscript {
 
 plugins {
     id 'java'
-    id 'cn.apisium.papershelled' version '1.0.1'
+    id 'cn.apisium.papershelled' version '1.0.2'
 }
 
 paperShelled {
@@ -26,12 +26,6 @@ dependencies {
     compileOnly paperShelled.jar()
 }
 
-```
-
-Then run `setupPaperShelled` task:
-
-```bash
-gradle setupPaperShelled
 ```
 
 ### Complete example
@@ -46,7 +40,7 @@ buildscript {
 }
 
 plugins {
-    id 'cn.apisium.papershelled' version '1.0.1'
+    id 'cn.apisium.papershelled' version '1.0.2'
     id 'com.github.johnrengelman.shadow' version '7.0.0'
 }
 

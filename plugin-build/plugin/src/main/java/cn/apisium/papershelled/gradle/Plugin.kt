@@ -5,6 +5,7 @@ package cn.apisium.papershelled.gradle
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.bundling.Jar
+import java.nio.file.Files
 
 internal var lastJarTask: Jar? = null
 
@@ -25,6 +26,11 @@ abstract class Plugin : Plugin<Project> {
             it.spigotMap.set(extension.spigotMap)
             it.mojangMap.set(extension.mojangMap)
             it.paperShelledJar.set(extension.paperShelledJar)
+            it.shouldRunAfter(download)
+        }
+
+        val setup = project.tasks.register("setupPaperShelled", SetupTask::class.java) {
+            it.dependsOn(download, gmj)
         }
 
         val reobf = project.tasks.register("reobf", ReobfTask::class.java) {
@@ -34,10 +40,8 @@ abstract class Plugin : Plugin<Project> {
             it.mojangMap.set(extension.mojangMap)
             it.craftBukkitVersion.set(extension.craftBukkitVersion)
             it.paperShelledJar.set(extension.paperShelledJar)
-        }
-
-        project.tasks.register("setupPaperShelled", SetupTask::class.java) {
-            it.dependsOn(download, gmj)
+            if (!Files.exists(it.reobfFile.get().asFile.toPath()) ||
+                !Files.exists(it.paperShelledJar.get().asFile.toPath())) it.dependsOn(setup)
         }
 
         project.tasks.withType(Jar::class.java) {

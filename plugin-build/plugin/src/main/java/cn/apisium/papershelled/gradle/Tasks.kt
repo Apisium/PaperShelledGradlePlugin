@@ -93,7 +93,7 @@ abstract class GenerateMappedJarTask : DefaultTask() {
     @ExperimentalPathApi
     @TaskAction
     fun run() {
-        val reobf = reobfFile.asFile.get().toPath()
+        val reobf = reobfFile.get().asFile.toPath()
         val path = URLClassLoader(arrayOf(jarFile.get().asFile.toURI().toURL())).use {
             val m = it.loadClass("io.papermc.paperclip.Paperclip").getDeclaredMethod("setupEnv")
             m.isAccessible = true
@@ -172,7 +172,7 @@ abstract class ReobfTask : DefaultTask() {
     @TaskAction
     fun run() {
         val remapper = TinyRemapper.newRemapper()
-            .withMappings(TinyUtils.createTinyMappingProvider(reobfFile.asFile.get().toPath(),
+            .withMappings(TinyUtils.createTinyMappingProvider(reobfFile.get().asFile.toPath(),
                 mojangMap.get(), spigotMap.get()))
             .ignoreConflicts(true)
             .fixPackageAccess(true)
