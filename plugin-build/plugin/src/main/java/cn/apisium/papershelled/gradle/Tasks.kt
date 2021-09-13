@@ -22,16 +22,6 @@ import kotlin.io.path.name
 
 private const val GROUP = "papershelled"
 
-abstract class SetupTask : DefaultTask() {
-    init {
-        description = "Setup"
-        group = GROUP
-    }
-
-    @TaskAction
-    fun run() = Unit
-}
-
 abstract class DownloadTask : DefaultTask() {
     init {
         description = "Download server jar"
@@ -41,6 +31,10 @@ abstract class DownloadTask : DefaultTask() {
     @get:Input
     @get:Option(option = "jarUrl", description = "The url to download server jar")
     abstract val jarUrl: Property<String>
+
+    @get:Input
+    @get:Option(option = "jarFile", description = "The file path of server jar")
+    abstract val jarFile: RegularFileProperty
 
     @get:Inject
     abstract val workerExecutor: WorkerExecutor
@@ -54,7 +48,7 @@ abstract class DownloadTask : DefaultTask() {
         workerExecutor.noIsolation().submit(DownloadWorker::class.java) {
             it.downloader.set(downloader)
             it.source.set(jarUrl)
-            it.target.set(project.layout.cache.resolve("server.jar").toFile())
+            it.target.set(jarFile)
         }
     }
 }
@@ -149,6 +143,11 @@ abstract class ReobfTask : DefaultTask() {
     abstract val reobfFile: RegularFileProperty
 
     @get:Input
+    @get:Option(option = "archiveClassifier", description = "The classifier of output jar")
+    @get:Optional
+    abstract val archiveClassifier: Property<String>
+
+    @get:Input
     @get:Option(option = "spigotMap", description = "The map name of Spigot")
     @get:Optional
     abstract val spigotMap: Property<String>
@@ -184,8 +183,8 @@ abstract class ReobfTask : DefaultTask() {
         val needRelocate = relocateCraftBukkit.get()
         val path = lastJarTask!!.archiveFile.get().asFile.toPath()
         val noSuffix = path.fileName.toString().removeSuffix(".jar")
-        val out = path.parent.resolve("$noSuffix-reobf.jar")
-        val temp = if (needRelocate) path.parent.resolve("$noSuffix.tmp.jar") else out
+        val temp = path.parent.resolve(noSuffix + archiveClassifier.get() + ".temp1.jar")
+        val out = path.parent.resolve(noSuffix + archiveClassifier.get() + ".jar")
         try {
             OutputConsumerPath.Builder(temp).build().use {
                 it.addNonClassFiles(path, NonClassCopyMode.FIX_META_INF, remapper)
@@ -196,10 +195,14 @@ abstract class ReobfTask : DefaultTask() {
         } finally {
             remapper.finish()
         }
-        if (needRelocate) {
-            JarRelocator(temp.toFile(), out.toFile(), listOf(Relocation("org.bukkit.craftbukkit",
+        val tempOut = if (needRelocate) {
+            val tmp = path.parent.resolve(noSuffix + archiveClassifier.get() + ".temp2.jar")
+            JarRelocator(temp.toFile(), tmp.toFile(), listOf(Relocation("org.bukkit.craftbukkit",
                 "org.bukkit.craftbukkit." + craftBukkitVersion.get()))).run()
             Files.delete(temp)
-        }
+            tmp
+        } else temp
+        if (Files.exists(out)) Files.delete(out)
+        Files.move(tempOut, out)
     }
 }

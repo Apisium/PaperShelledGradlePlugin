@@ -15,7 +15,7 @@ buildscript {
 
 plugins {
     id 'java'
-    id 'cn.apisium.papershelled' version '1.0.2'
+    id 'cn.apisium.papershelled' version '1.0.3'
 }
 
 paperShelled {
@@ -40,7 +40,7 @@ buildscript {
 }
 
 plugins {
-    id 'cn.apisium.papershelled' version '1.0.2'
+    id 'cn.apisium.papershelled' version '1.0.3'
     id 'com.github.johnrengelman.shadow' version '7.0.0'
 }
 
@@ -54,7 +54,9 @@ paperShelled {
     reobfFile = 'some/path/reobf.tiny'
     spigotMap = 'spigot'
     mojangMap = 'mojang+yarn'
-    relocateCraftBukkit = false
+    archiveClassifier = "-reobf"
+    relocateCraftBukkit = true
+    reobfAfterJarTask = true
 }
 
 shadowJar {

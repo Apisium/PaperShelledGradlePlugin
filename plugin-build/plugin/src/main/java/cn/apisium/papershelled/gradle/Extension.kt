@@ -15,8 +15,10 @@ abstract class Extension @Inject constructor(private val project: Project) {
     val reobfFile: RegularFileProperty = objects.fileProperty().convention(project.layout.getCache("reobf.tiny"))
     val spigotMap: Property<String> = objects.property(String::class.java).convention("spigot")
     val mojangMap: Property<String> = objects.property(String::class.java).convention("mojang+yarn")
-    val relocateCraftBukkit: Property<Boolean> = objects.property(Boolean::class.java).convention(true)
     val paperShelledJar: RegularFileProperty = objects.fileProperty().convention(project.layout.getCache("out.jar"))
+    val relocateCraftBukkit: Property<Boolean> = objects.property(Boolean::class.java).convention(true)
+    val reobfAfterJarTask: Property<Boolean> = objects.property(Boolean::class.java).convention(true)
+    val archiveClassifier: Property<String> = objects.property(String::class.java).convention("-reobf")
     val craftBukkitVersion: Property<String> = objects.property(String::class.java)
         .convention(project.provider {
             try {

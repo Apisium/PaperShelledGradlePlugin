@@ -17,6 +17,7 @@ abstract class Plugin : Plugin<Project> {
 
         val download = project.tasks.register("download", DownloadTask::class.java) {
             it.jarUrl.set(extension.jarUrl)
+            it.jarFile.set(extension.jarFile)
             it.downloader.set(ds)
         }
 
@@ -26,11 +27,7 @@ abstract class Plugin : Plugin<Project> {
             it.spigotMap.set(extension.spigotMap)
             it.mojangMap.set(extension.mojangMap)
             it.paperShelledJar.set(extension.paperShelledJar)
-            it.shouldRunAfter(download)
-        }
-
-        val setup = project.tasks.register("setupPaperShelled", SetupTask::class.java) {
-            it.dependsOn(download, gmj)
+            if (!Files.exists(it.jarFile.get().asFile.toPath())) it.dependsOn(download)
         }
 
         val reobf = project.tasks.register("reobf", ReobfTask::class.java) {
@@ -40,11 +37,12 @@ abstract class Plugin : Plugin<Project> {
             it.mojangMap.set(extension.mojangMap)
             it.craftBukkitVersion.set(extension.craftBukkitVersion)
             it.paperShelledJar.set(extension.paperShelledJar)
+            it.archiveClassifier.set(extension.archiveClassifier)
             if (!Files.exists(it.reobfFile.get().asFile.toPath()) ||
-                !Files.exists(it.paperShelledJar.get().asFile.toPath())) it.dependsOn(setup)
+                !Files.exists(it.paperShelledJar.get().asFile.toPath())) it.dependsOn(gmj)
         }
 
-        project.tasks.withType(Jar::class.java) {
+        if (extension.reobfAfterJarTask.get()) project.tasks.withType(Jar::class.java) {
             lastJarTask = it
             it.finalizedBy(reobf)
         }
