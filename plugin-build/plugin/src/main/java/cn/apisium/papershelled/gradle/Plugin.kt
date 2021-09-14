@@ -47,8 +47,9 @@ abstract class Plugin : Plugin<Project> {
             }
             val dep = project.dependencies
 
+            val refMapName = extension.referenceMapName.get()
+            val refMap = project.layout.tmp.resolve("refmap.json")
             if (extension.generateReferenceMap.get()) {
-                val refMap = project.layout.tmp.resolve("refmap.json")
                 project.repositories.maven {
                     it.url = URI.create("https://maven.fabricmc.net/")
                     it.content { res -> res.includeGroup("net.fabricmc") }
@@ -59,16 +60,20 @@ abstract class Plugin : Plugin<Project> {
                     "org.apache.logging.log4j:log4j-core:2.14.1",
                     "org.ow2.asm:asm-commons:9.2"
                 ).forEach { name -> dep.add("annotationProcessor", dep.create(name)) }
-                project.tasks.withType(JavaCompile::class.java) {
+                project.tasks.withType(Jar::class.java) {
+                    it.from(project.file(refMap.toFile())) { c -> c.rename { refMapName } }
+                }
+            }
+
+            project.tasks.withType(JavaCompile::class.java) {
+                it.options.compilerArgs.add("-ArefMapFileName=$refMapName")
+                if (extension.generateReferenceMap.get()) {
                     if (Files.exists(refMap)) Files.delete(refMap)
                     it.options.compilerArgs.apply {
                         add("-AdefaultObfuscationEnv=named:intermediary")
                         add("-AinMapFileNamedIntermediary=" + extension.reobfFile.get().asFile.path)
                         add("-AoutRefMapFile=$refMap")
                     }
-                }
-                project.tasks.withType(Jar::class.java) {
-                    it.from(project.file(refMap.toFile())) { c -> c.rename { extension.referenceMapName.get() } }
                 }
             }
 

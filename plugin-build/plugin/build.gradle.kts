@@ -15,7 +15,6 @@ dependencies {
 
     repositories {
         mavenCentral()
-        maven("https://maven.fabricmc.net/")
     }
 }
 

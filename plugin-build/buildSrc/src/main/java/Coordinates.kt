@@ -1,7 +1,7 @@
 object PluginCoordinates {
     const val ID = "cn.apisium.papershelled"
     const val GROUP = "cn.apisium.papershelled"
-    const val VERSION = "1.0.5"
+    const val VERSION = "1.0.6"
     const val IMPLEMENTATION_CLASS = "cn.apisium.papershelled.gradle.Plugin"
 }
 
