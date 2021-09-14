@@ -13,7 +13,7 @@ internal var lastJarTask: Jar? = null
 
 abstract class Plugin : Plugin<Project> {
     override fun apply(project: Project) {
-        val ds = project.gradle.sharedServices.registerIfAbsent("downloader", DownloadService::class.java) {}
+        val ds = project.gradle.sharedServices.registerIfAbsent("downloader", DownloadService::class.java) { }
 
         val extension = project.extensions.create("paperShelled", Extension::class.java, project)
 
@@ -68,7 +68,6 @@ abstract class Plugin : Plugin<Project> {
             project.tasks.withType(JavaCompile::class.java) {
                 it.options.compilerArgs.add("-ArefMapFileName=$refMapName")
                 if (extension.generateReferenceMap.get()) {
-                    if (Files.exists(refMap)) Files.delete(refMap)
                     it.options.compilerArgs.apply {
                         add("-AdefaultObfuscationEnv=named:intermediary")
                         add("-AinMapFileNamedIntermediary=" + extension.reobfFile.get().asFile.path)
