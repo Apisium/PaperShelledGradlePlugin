@@ -54,8 +54,8 @@ abstract class DownloadTask : DefaultTask() {
     }
 }
 
-private val LEFT = arrayOf("intermediary", "mojang+yarn")
-private val RIGHT = arrayOf("named", "spigot")
+private val LEFT = arrayOf("named", "mojang+yarn")
+private val RIGHT = arrayOf("intermediary", "spigot")
 
 abstract class GenerateMappedJarTask : DefaultTask() {
     init {

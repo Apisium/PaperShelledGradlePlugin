@@ -40,37 +40,61 @@ abstract class Plugin : Plugin<Project> {
                 !Files.exists(it.paperShelledJar.get().asFile.toPath())) it.dependsOn(gmj)
         }
 
-        if (extension.reobfAfterJarTask.get()) project.tasks.withType(Jar::class.java) {
-            lastJarTask = it
-            it.finalizedBy(reobf)
-        }
+        project.afterEvaluate {
+            if (extension.reobfAfterJarTask.get()) project.tasks.withType(Jar::class.java) {
+                lastJarTask = it
+                it.finalizedBy(reobf)
+            }
+            val dep = project.dependencies
 
-        if (extension.generateReferenceMap.get()) {
-            val refMap = project.layout.tmp.resolve("refmap.json")
-            if (Files.exists(refMap)) Files.delete(refMap)
-            project.afterEvaluate {
+            if (extension.generateReferenceMap.get()) {
+                val refMap = project.layout.tmp.resolve("refmap.json")
+                project.repositories.maven {
+                    it.url = URI.create("https://maven.fabricmc.net/")
+                    it.content { res -> res.includeGroup("net.fabricmc") }
+                }
+                project.repositories.mavenCentral()
                 arrayOf(
                     "net.fabricmc:fabric-mixin-compile-extensions:0.4.6",
                     "org.apache.logging.log4j:log4j-core:2.14.1",
                     "org.ow2.asm:asm-commons:9.2"
-                ).forEach { name ->
-                    project.dependencies.add("annotationProcessor", project.dependencies.create(name))
+                ).forEach { name -> dep.add("annotationProcessor", dep.create(name)) }
+                project.tasks.withType(JavaCompile::class.java) {
+                    if (Files.exists(refMap)) Files.delete(refMap)
+                    it.options.compilerArgs.apply {
+                        add("-AdefaultObfuscationEnv=named:intermediary")
+                        add("-AinMapFileNamedIntermediary=" + extension.reobfFile.get().asFile.path)
+                        add("-AoutRefMapFile=$refMap")
+                    }
                 }
-                project.repositories.maven { it.url = URI.create("https://maven.fabricmc.net/") }
-                project.repositories.mavenCentral()
-            }
-            project.tasks.withType(JavaCompile::class.java) {
-                it.options.compilerArgs.apply {
-                    add("-AdefaultObfuscationEnv=named:intermediary")
-                    add("-AinMapFileNamedIntermediary=" + extension.reobfFile.get().asFile.path)
-                    add("-AoutRefMapFile=$refMap")
-                }
-            }
-            project.tasks.withType(Jar::class.java) {
-                it.from(project.file(refMap.toFile())) { c ->
-                    c.rename { extension.referenceMapName.get() }
+                project.tasks.withType(Jar::class.java) {
+                    it.from(project.file(refMap.toFile())) { c -> c.rename { extension.referenceMapName.get() } }
                 }
             }
+
+            val v = extension.paperShelledVersion.get()
+            val av = extension.annotationsVersion.get()
+            val mv = extension.mixinVersion.get()
+            if (av.isNotEmpty() && v.isNotEmpty()) {
+                project.repositories.maven {
+                    it.url = URI.create("https://www.jitpack.io/")
+                    it.content { res -> res.includeGroup("com.github.Apisium") }
+                }
+                if (av.isNotEmpty()) {
+                    val d = dep.create("com.github.Apisium:PaperShelledAnnotations:$av")
+                    dep.add("annotationProcessor", d)
+                    dep.add("compileOnly", d)
+                }
+                if (v.isNotEmpty()) dep.add("compileOnly", dep.create("com.github.Apisium:PaperShelled:$v"))
+            }
+            if (mv.isNotEmpty()) {
+                project.repositories.maven {
+                    it.url = URI.create("https://repo.spongepowered.org/repository/maven-public/")
+                    it.content { res -> res.includeGroup("org.spongepowered") }
+                }
+                dep.add("compileOnly", dep.create("org.spongepowered:mixin:$mv"))
+            }
+            if (extension.addJarToDependencies.get()) dep.add("compileOnly", dep.create(extension.jar()))
         }
     }
 }

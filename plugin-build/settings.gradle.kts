@@ -5,6 +5,6 @@ pluginManagement {
     }
 }
 
-rootProject.name = ("com.apisium.papershelled")
+rootProject.name = "com.apisium.papershelled"
 
-include(":plugin")
+include(":plugin", ":tiny-remapper")

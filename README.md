@@ -50,13 +50,17 @@ dependencies {
 
 paperShelled {
     jarUrl = 'https://papermc.io/api/v2/projects/paper/versions/1.17.1/builds/257/downloads/paper-1.17.1-257.jar'
+    version = "master-SNAPSHOT"
+    annotationsVersion = "master-SNAPSHOT"
+    mixinVersion = "0.8.4"
     jarFile = 'some/path/server.jar'
     reobfFile = 'some/path/reobf.tiny'
     archiveClassifier = "-reobf"
+    referenceMapName = "ProjectName.refmap.json"
     relocateCraftBukkit = true
     reobfAfterJarTask = true
     generateReferenceMap = true
-    referenceMapName = "ProjectName.refmap.json"
+    addJarToDependencies = true
 }
 
 shadowJar {

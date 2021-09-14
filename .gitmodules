@@ -1,0 +1,6 @@
+[submodule "tiny-remapper"]
+	path = tiny-remapper
+	url = https://github.com/FabricMC/tiny-remapper.git
+[submodule "plugin-build/tiny-remapper"]
+	path = plugin-build/tiny-remapper
+	url = https://github.com/FabricMC/tiny-remapper.git
