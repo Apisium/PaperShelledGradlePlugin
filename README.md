@@ -15,7 +15,7 @@ buildscript {
 
 plugins {
     id 'java'
-    id 'cn.apisium.papershelled' version '1.0.3'
+    id 'cn.apisium.papershelled' version '1.0.4'
 }
 
 paperShelled {
@@ -40,7 +40,7 @@ buildscript {
 }
 
 plugins {
-    id 'cn.apisium.papershelled' version '1.0.3'
+    id 'cn.apisium.papershelled' version '1.0.4'
     id 'com.github.johnrengelman.shadow' version '7.0.0'
 }
 
@@ -52,11 +52,11 @@ paperShelled {
     jarUrl = 'https://papermc.io/api/v2/projects/paper/versions/1.17.1/builds/257/downloads/paper-1.17.1-257.jar'
     jarFile = 'some/path/server.jar'
     reobfFile = 'some/path/reobf.tiny'
-    spigotMap = 'spigot'
-    mojangMap = 'mojang+yarn'
     archiveClassifier = "-reobf"
     relocateCraftBukkit = true
     reobfAfterJarTask = true
+    generateReferenceMap = true
+    referenceMapName = "ProjectName.refmap.json"
 }
 
 shadowJar {

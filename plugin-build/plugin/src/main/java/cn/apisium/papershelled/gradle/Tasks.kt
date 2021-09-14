@@ -13,6 +13,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkerExecutor
 import java.net.URLClassLoader
+import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
@@ -53,6 +54,9 @@ abstract class DownloadTask : DefaultTask() {
     }
 }
 
+private val LEFT = arrayOf("intermediary", "mojang+yarn")
+private val RIGHT = arrayOf("named", "spigot")
+
 abstract class GenerateMappedJarTask : DefaultTask() {
     init {
         description = "Generate mapped jar file"
@@ -74,19 +78,11 @@ abstract class GenerateMappedJarTask : DefaultTask() {
     @get:Optional
     abstract val paperShelledJar: RegularFileProperty
 
-    @get:Input
-    @get:Option(option = "spigotMap", description = "The map name of Spigot")
-    @get:Optional
-    abstract val spigotMap: Property<String>
-
-    @get:Input
-    @get:Option(option = "mojangMap", description = "The map name of Mojang")
-    @get:Optional
-    abstract val mojangMap: Property<String>
-
     @ExperimentalPathApi
     @TaskAction
     fun run() {
+        Files.createDirectories(project.layout.tmp)
+        Files.createDirectories(project.layout.cache)
         val reobf = reobfFile.get().asFile.toPath()
         val path = URLClassLoader(arrayOf(jarFile.get().asFile.toURI().toURL())).use {
             val m = it.loadClass("io.papermc.paperclip.Paperclip").getDeclaredMethod("setupEnv")
@@ -95,17 +91,19 @@ abstract class GenerateMappedJarTask : DefaultTask() {
         }
         if (Files.exists(reobf)) Files.delete(reobf)
         val obcVersion = FileSystems.newFileSystem(path, null as ClassLoader?).use { fs ->
-            Files.copy(fs.getPath("/META-INF/mappings/reobf.tiny"), reobf)
+            val data = Files.readAllBytes(fs.getPath("/META-INF/mappings/reobf.tiny")).toString(StandardCharsets.UTF_8)
+            Files.write(reobf, data.replaceFirst(LEFT[1], LEFT[0]).replaceFirst(RIGHT[1], RIGHT[0])
+                .toByteArray(StandardCharsets.UTF_8))
             Files.list(fs.getPath("/org/bukkit/craftbukkit"))
                 .map { it.fileName.name }
                 .filter { it.startsWith("v") }
                 .findFirst().get()
         }
         logger.lifecycle("Found org.bukkit.craftbukkit: $obcVersion")
-        Files.writeString(project.layout.cache.resolve("mappingVersion.txt"), obcVersion)
-        val temp = project.layout.cache.resolve("temp.jar")
+        Files.write(project.layout.cache.resolve("mappingVersion.txt"), obcVersion.toByteArray(StandardCharsets.UTF_8))
+        val temp = project.layout.tmp.resolve("temp.jar")
         val remapper = TinyRemapper.newRemapper()
-            .withMappings(TinyUtils.createTinyMappingProvider(reobf, spigotMap.get(), mojangMap.get()))
+            .withMappings(TinyUtils.createTinyMappingProvider(reobf as Path, RIGHT[0], LEFT[0]))
             .ignoreConflicts(true)
             .fixPackageAccess(true)
             .rebuildSourceFilenames(true)
@@ -123,6 +121,7 @@ abstract class GenerateMappedJarTask : DefaultTask() {
         }
         JarRelocator(temp.toFile(), paperShelledJar.get().asFile, listOf(
             Relocation("org.bukkit.craftbukkit.$obcVersion", "org.bukkit.craftbukkit"))).run()
+        Files.delete(temp)
     }
 }
 
@@ -148,16 +147,6 @@ abstract class ReobfTask : DefaultTask() {
     abstract val archiveClassifier: Property<String>
 
     @get:Input
-    @get:Option(option = "spigotMap", description = "The map name of Spigot")
-    @get:Optional
-    abstract val spigotMap: Property<String>
-
-    @get:Input
-    @get:Option(option = "mojangMap", description = "The map name of Mojang")
-    @get:Optional
-    abstract val mojangMap: Property<String>
-
-    @get:Input
     @get:Option(option = "craftBukkitVersion", description = "The version of craft bukkit")
     @get:Optional
     abstract val craftBukkitVersion: Property<String>
@@ -170,9 +159,10 @@ abstract class ReobfTask : DefaultTask() {
     @ExperimentalPathApi
     @TaskAction
     fun run() {
+        Files.createDirectories(project.layout.tmp)
+        Files.createDirectories(project.layout.cache)
         val remapper = TinyRemapper.newRemapper()
-            .withMappings(TinyUtils.createTinyMappingProvider(reobfFile.get().asFile.toPath(),
-                mojangMap.get(), spigotMap.get()))
+            .withMappings(TinyUtils.createTinyMappingProvider(reobfFile.get().asFile.toPath(), LEFT[0], RIGHT[0]))
             .ignoreConflicts(true)
             .fixPackageAccess(true)
             .rebuildSourceFilenames(true)
@@ -183,7 +173,7 @@ abstract class ReobfTask : DefaultTask() {
         val needRelocate = relocateCraftBukkit.get()
         val path = lastJarTask!!.archiveFile.get().asFile.toPath()
         val noSuffix = path.fileName.toString().removeSuffix(".jar")
-        val temp = path.parent.resolve(noSuffix + archiveClassifier.get() + ".temp1.jar")
+        val temp = project.layout.tmp.resolve(noSuffix + archiveClassifier.get() + ".temp1.jar")
         val out = path.parent.resolve(noSuffix + archiveClassifier.get() + ".jar")
         try {
             OutputConsumerPath.Builder(temp).build().use {
@@ -196,7 +186,7 @@ abstract class ReobfTask : DefaultTask() {
             remapper.finish()
         }
         val tempOut = if (needRelocate) {
-            val tmp = path.parent.resolve(noSuffix + archiveClassifier.get() + ".temp2.jar")
+            val tmp = project.layout.tmp.resolve(noSuffix + archiveClassifier.get() + ".temp2.jar")
             JarRelocator(temp.toFile(), tmp.toFile(), listOf(Relocation("org.bukkit.craftbukkit",
                 "org.bukkit.craftbukkit." + craftBukkitVersion.get()))).run()
             Files.delete(temp)

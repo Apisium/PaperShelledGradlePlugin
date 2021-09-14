@@ -13,12 +13,12 @@ abstract class Extension @Inject constructor(private val project: Project) {
     val jarUrl: Property<String> = objects.property(String::class.java)
     val jarFile: RegularFileProperty = objects.fileProperty().convention(project.layout.getCache("server.jar"))
     val reobfFile: RegularFileProperty = objects.fileProperty().convention(project.layout.getCache("reobf.tiny"))
-    val spigotMap: Property<String> = objects.property(String::class.java).convention("spigot")
-    val mojangMap: Property<String> = objects.property(String::class.java).convention("mojang+yarn")
     val paperShelledJar: RegularFileProperty = objects.fileProperty().convention(project.layout.getCache("out.jar"))
     val relocateCraftBukkit: Property<Boolean> = objects.property(Boolean::class.java).convention(true)
     val reobfAfterJarTask: Property<Boolean> = objects.property(Boolean::class.java).convention(true)
+    val generateReferenceMap: Property<Boolean> = objects.property(Boolean::class.java).convention(true)
     val archiveClassifier: Property<String> = objects.property(String::class.java).convention("-reobf")
+    val referenceMapName: Property<String> = objects.property(String::class.java).convention(project.name + ".refmap.json")
     val craftBukkitVersion: Property<String> = objects.property(String::class.java)
         .convention(project.provider {
             try {
