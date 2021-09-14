@@ -1,3 +1,9 @@
+buildscript {
+    repositories {
+        maven { url "https://maven.fabricmc.net/" }
+    }
+}
+
 plugins {
     id 'java'
     id 'cn.apisium.papershelled'

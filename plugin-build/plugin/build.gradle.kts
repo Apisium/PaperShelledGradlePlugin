@@ -7,7 +7,7 @@ plugins {
 dependencies {
     implementation(gradleApi())
     implementation(kotlin("stdlib-jdk8"))
-    implementation(project(":tiny-remapper"))
+    implementation("net.fabricmc:tiny-remapper:0.5.0")
     implementation("org.apache.httpcomponents:httpclient:4.5.13")
     implementation("me.lucko:jar-relocator:1.5") {
         exclude("org.ow2.asm")
@@ -15,6 +15,7 @@ dependencies {
 
     repositories {
         mavenCentral()
+        maven("https://maven.fabricmc.net/")
     }
 }
 

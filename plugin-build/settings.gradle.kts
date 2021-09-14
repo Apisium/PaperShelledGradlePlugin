@@ -7,4 +7,4 @@ pluginManagement {
 
 rootProject.name = "com.apisium.papershelled"
 
-include(":plugin", ":tiny-remapper")
+include(":plugin")
