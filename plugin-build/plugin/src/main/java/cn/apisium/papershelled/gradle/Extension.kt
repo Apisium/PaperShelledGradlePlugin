@@ -11,12 +11,12 @@ abstract class Extension @Inject constructor(private val project: Project) {
     private val objects = project.objects
 
     val jarUrl: Property<String> = objects.property(String::class.java)
-    val paperShelledVersion: Property<String> = objects.property(String::class.java).convention("")
-    val annotationsVersion: Property<String> = objects.property(String::class.java).convention("")
+    val paperShelledVersion: Property<String> = objects.property(String::class.java).convention("0.0.1")
+    val annotationsVersion: Property<String> = objects.property(String::class.java).convention("0.0.0")
     val jarFile: RegularFileProperty = objects.fileProperty().convention(project.layout.getCache("server.jar"))
     val reobfFile: RegularFileProperty = objects.fileProperty().convention(project.layout.getCache("reobf.tiny"))
     val paperShelledJar: RegularFileProperty = objects.fileProperty().convention(project.layout.getCache("out.jar"))
-    val relocateCraftBukkit: Property<Boolean> = objects.property(Boolean::class.java).convention(true)
+    val relocateCraftBukkit: Property<Boolean> = objects.property(Boolean::class.java).convention(false)
     val reobfAfterJarTask: Property<Boolean> = objects.property(Boolean::class.java).convention(true)
     val generateReferenceMap: Property<Boolean> = objects.property(Boolean::class.java).convention(true)
     val addJarToDependencies: Property<Boolean> = objects.property(Boolean::class.java).convention(true)

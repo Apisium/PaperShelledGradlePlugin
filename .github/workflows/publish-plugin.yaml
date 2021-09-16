@@ -15,8 +15,6 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
-        with:
-          submodules: true
       - name: Cache Gradle Caches
         uses: actions/cache@v1
         with:
