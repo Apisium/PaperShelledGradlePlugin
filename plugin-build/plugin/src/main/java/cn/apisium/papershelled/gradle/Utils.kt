@@ -42,7 +42,6 @@ abstract class DownloadService : BuildService<BuildServiceParameters.None>, Auto
         builder.build()
     }
 
-    @ExperimentalPathApi
     fun download(source: URL, target: Path) {
         target.parent.createDirectories()
 
@@ -88,7 +87,6 @@ abstract class DownloadService : BuildService<BuildServiceParameters.None>, Auto
         }
     }
 
-    @ExperimentalPathApi
     private fun handleResponse(response: CloseableHttpResponse, target: Path): Instant {
         val lastModified = with(response.getLastHeader("Last-Modified")) {
             if (this == null) {
@@ -113,7 +111,6 @@ abstract class DownloadService : BuildService<BuildServiceParameters.None>, Auto
         return lastModified
     }
 
-    @ExperimentalPathApi
     private fun saveEtag(response: CloseableHttpResponse, lastModified: Instant, target: Path, etagFile: Path) {
         if (lastModified != Instant.EPOCH) {
             target.setLastModifiedTime(FileTime.from(lastModified))
@@ -137,7 +134,6 @@ interface DownloadParams : WorkParameters {
 }
 
 abstract class DownloadWorker : WorkAction<DownloadParams> {
-    @ExperimentalPathApi
     override fun execute() {
         parameters.downloader.get().download(URI.create(parameters.source.get()).toURL(),
             parameters.target.get().asFile.toPath())

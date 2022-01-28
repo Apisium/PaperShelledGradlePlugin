@@ -2,8 +2,10 @@ package cn.apisium.papershelled.gradle
 
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.ConfigurableFileTree
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
+import java.io.File
 import java.nio.file.Files
 import javax.inject.Inject
 
@@ -16,6 +18,7 @@ abstract class Extension @Inject constructor(private val project: Project) {
     val jarFile: RegularFileProperty = objects.fileProperty().convention(project.layout.getCache("server.jar"))
     val reobfFile: RegularFileProperty = objects.fileProperty().convention(project.layout.getCache("reobf.tiny"))
     val paperShelledJar: RegularFileProperty = objects.fileProperty().convention(project.layout.getCache("out.jar"))
+    val paperShelledLib: RegularFileProperty = objects.fileProperty().convention(project.layout.getCache("libs"))
     val relocateCraftBukkit: Property<Boolean> = objects.property(Boolean::class.java).convention(false)
     val reobfAfterJarTask: Property<Boolean> = objects.property(Boolean::class.java).convention(true)
     val generateReferenceMap: Property<Boolean> = objects.property(Boolean::class.java).convention(true)
@@ -34,4 +37,5 @@ abstract class Extension @Inject constructor(private val project: Project) {
 
     @Suppress("unused")
     fun jar(): ConfigurableFileCollection = project.files(paperShelledJar.get().asFile)
+    fun lib(): ConfigurableFileTree = project.fileTree(paperShelledLib.get().asFile)
 }
