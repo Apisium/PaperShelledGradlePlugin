@@ -13,7 +13,7 @@ abstract class Extension @Inject constructor(private val project: Project) {
     private val objects = project.objects
 
     val jarUrl: Property<String> = objects.property(String::class.java)
-    val paperShelledVersion: Property<String> = objects.property(String::class.java).convention("0.0.1")
+    val paperShelledVersion: Property<String> = objects.property(String::class.java).convention("1.0.0")
     val annotationsVersion: Property<String> = objects.property(String::class.java).convention("0.0.0")
     val jarFile: RegularFileProperty = objects.fileProperty().convention(project.layout.getCache("server.jar"))
     val reobfFile: RegularFileProperty = objects.fileProperty().convention(project.layout.getCache("reobf.tiny"))
