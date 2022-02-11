@@ -96,7 +96,7 @@ abstract class GenerateMappedJarTask : DefaultTask() {
             val path = URLClassLoader(arrayOf(jarFile.get().asFile.toURI().toURL())).use {
                 val clipClazz = it.loadClass("io.papermc.paperclip.Paperclip")
                 val ctxClazz = it.loadClass("io.papermc.paperclip.DownloadContext")
-                val repoDir = Path.of(System.getProperty("bundlerRepoDir", ""))
+                val repoDir = Path.of(System.getProperty("bundlerRepoDir", project.layout.cache.toString()))
                 val patches = clipClazz.getDeclaredMethod("findPatches").run {
                     isAccessible = true
                     invoke(null) as Array<*>
