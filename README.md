@@ -15,7 +15,7 @@ buildscript {
 
 plugins {
     id 'java'
-    id 'cn.apisium.papershelled' version '1.0.4'
+    id 'cn.apisium.papershelled' version '1.2.0'
 }
 
 paperShelled {
@@ -40,7 +40,7 @@ buildscript {
 }
 
 plugins {
-    id 'cn.apisium.papershelled' version '1.0.4'
+    id 'cn.apisium.papershelled' version '1.2.0'
     id 'com.github.johnrengelman.shadow' version '7.0.0'
 }
 
