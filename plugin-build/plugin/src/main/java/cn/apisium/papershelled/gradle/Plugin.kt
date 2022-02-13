@@ -4,7 +4,6 @@ package cn.apisium.papershelled.gradle
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.compile.JavaCompile
 import java.net.URI
@@ -39,7 +38,8 @@ abstract class Plugin : Plugin<Project> {
             it.paperShelledJar.set(extension.paperShelledJar)
             it.archiveClassifier.set(extension.archiveClassifier)
             if (!Files.exists(it.reobfFile.get().asFile.toPath()) ||
-                !Files.exists(it.paperShelledJar.get().asFile.toPath())) it.dependsOn(gmj)
+                !Files.exists(it.paperShelledJar.get().asFile.toPath())
+            ) it.dependsOn(gmj)
         }
 
         project.afterEvaluate {
