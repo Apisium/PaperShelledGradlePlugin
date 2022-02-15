@@ -3,6 +3,7 @@ package cn.apisium.papershelled.gradle
 import me.lucko.jarrelocator.JarRelocator
 import me.lucko.jarrelocator.Relocation
 import net.fabricmc.tinyremapper.*
+import net.fabricmc.tinyremapper.extension.mixin.MixinExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
@@ -272,6 +273,7 @@ abstract class ReobfTask : DefaultTask() {
             .fixPackageAccess(true)
             .rebuildSourceFilenames(true)
             .renameInvalidLocals(true)
+            .extension(MixinExtension())
             .threads(-1)
             .build()
 
